@@ -44,7 +44,7 @@ const productosSchema=mongoose.Schema({
                 "Niño/a",
                 "Zapatos",
                 "Accesorios Deportivos",
-                "Suplemeton alimenticios"
+                "Suplementos Alimenticios"
             ]
         }
     },

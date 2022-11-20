@@ -1,43 +1,45 @@
-const producto=require("../models/productos")
+const catchAsyncErrors = require("../middleware/catchAsyncErrors");
+const producto=require("../models/productos");
+const ErrorHandler = require("../utils/errorHandler");
 const fetch =(url)=>import('node-fetch').then(({default:fetch})=>fetch(url));//Usurpacion del require
 
 //Ver lista de productos
-exports.getProducts=async (req,res,next) =>{
+exports.getProducts=catchAsyncErrors(async (req,res,next) =>{
+    
     const productos= await producto.find();
+    if (!productos) {
+        return next(new ErrorHandler("Informacion no encontrada", 404))
+    }
 
     res.status(200).json({
         success:true,
         cantidad: productos.length,
         productos
     })
-};
+})
 
 //Ver un producto por ID
-exports.getProductById= async(req, res, next)=>{
-    const product= await producto.findById(req.params.id)
+exports.getProductById= catchAsyncErrors( async(req, res, next)=>{
+    const product = await producto.findById(req.params.id)
     
     if (!product){
-        return res.status(404).json({
-            success:false,
-            message: "No se encontro el producto"
-        })
-    }
+             return next(new ErrorHandler("Producto no encontrado", 404))
+        }
+    
     res.status(200).json({
         success: true,
         message: "Aqui encuentras informacion sobre tu producto: ",       
         product
     })
-}
+})
 
 //Update un producto
-exports.updateProduct= async (req, res, next) =>{
+exports.updateProduct=catchAsyncErrors(async (req, res, next) =>{
     let product = await producto.findById(req.params.id) //Variable de tipo modificable
-    if (!product) { //verifico que el objeto no exista para finalizar el proceso y se notifica
-        return res.status(404).json({
-            success: false,
-            message: "No se encontro el producto"
-        })
+    if (!product) {
+        return next(new ErrorHandler("Producto no encontrado", 404))
     }
+
     //Si el objeto si existe, entonces si ejecuto la actualizacion
     product = await producto.findByIdAndUpdate(req.params.id, req.body, {
         new:true, // Valido solo los atributos nuevos o actualizados
@@ -51,16 +53,13 @@ exports.updateProduct= async (req, res, next) =>{
 
     })
 
-}
+})
 
 //Eliminar un producto
-exports.deleteProduct = async (req, res, next) => {
+exports.deleteProduct =catchAsyncErrors(async (req, res, next) => {
     const product = await producto.findById(req.params.id) //Variable de tipo modificable
-    if (!product) { //verifico que el objeto no exista para finalizar el proceso y se notifica
-        return res.status(404).json({ //Si el objeto no existe, return termina el metodo
-            success: false,
-            message: "No se encontro el producto"
-        })
+    if (!product) {
+        return next(new ErrorHandler("Producto no encontrado", 404))
     }
 
     await product.remove();//Eliminar el proceso
@@ -68,17 +67,17 @@ exports.deleteProduct = async (req, res, next) => {
         success:true,
         message:"Producto eliminado correctamente",        
     })
-}
+})
 
 //Crear nuevo producto /api/productos
-exports.newProduct=async(req,res,next) =>{
+exports.newProduct=catchAsyncErrors(async(req,res,next) =>{
     const product= await producto.create(req.body);
 
     res.status(201).json({
         success:true,
         product
     })
-}
+})
 
 // OPCION FETCH
 
