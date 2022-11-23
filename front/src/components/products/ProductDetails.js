@@ -5,6 +5,7 @@ import { useParams } from 'react-router'
 import { clearErrors, getProductDetails } from '../../actions/productActions'
 import { useAlert } from 'react-alert'
 import { Carousel } from 'react-bootstrap'
+import { addItemToCart } from '../../actions/cartActions'
 
 export const ProductDetails = () => {
     const { loading, product, error } = useSelector(state => state.productDetails)
@@ -45,6 +46,13 @@ export const ProductDetails = () => {
 
     }
 
+    const addToCart=()=>{
+        dispatch(addItemToCart( id, quantity));
+        alert.success("Producto agregado al carrito")
+    }
+
+
+
     return (
         <Fragment>
             {loading ? <i class="fa fa-refresh fa-spin fa-3x fa-fw"></i> : (
@@ -77,7 +85,7 @@ export const ProductDetails = () => {
                                 <input type="number" className="form-control count d-inline" value={quantity} readOnly />
                                 <span className="btn btn-primary plus"onClick={increaseQty}>+</span>
                             </div>
-                            <button type="button" id="carrito_btn" className="btn btn-primary d-inline ml-4" disabled={product.inventario === 0}>Agregar al Carrito</button>
+                            <button type="button" id="cart_btn" className="btn btn-primary d-inline ml-4" disabled={product.inventario === 0} onClick={addToCart}>Agregar al Carrito</button>
                             <hr />
                             <p>Estado: <span id="stock_stado" className={product.inventario > 0 ? 'greenColor' : 'redColor'}>{product.inventario > 0 ? "En existencia" : "Agotado"}</span></p>
                             <hr />
